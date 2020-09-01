@@ -66,6 +66,7 @@ module ParallelTests
       end
 
       def check_for_pending_migrations
+        puts "check pending migrations"
         ["db:abort_if_pending_migrations", "app:db:abort_if_pending_migrations"].each do |abort_migrations|
           if Rake::Task.task_defined?(abort_migrations)
             Rake::Task[abort_migrations].invoke
@@ -180,7 +181,7 @@ namespace :parallel do
   ['test', 'spec', 'features', 'features-spinach'].each do |type|
     desc "Run #{type} in parallel with parallel:#{type}[num_cpus]"
     task type, [:count, :pattern, :options, :pass_through] do |t, args|
-      ParallelTests::Tasks.check_for_pending_migrations
+      ParallelTests::Tasks.check_for_pending_migrations unless ENV['SKIP_MIGRATION_CHECK']
       ParallelTests::Tasks.load_lib
 
       count, pattern, options, pass_through = ParallelTests::Tasks.parse_args(args)
